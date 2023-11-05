@@ -12,13 +12,8 @@ export const isSamePoint = (a: Point, b: Point) => {
   return a[0] === b[0] && a[1] === b[1];
 };
 
-export const isOutOfBounds = (point: Point, bounds: Point) => {
-  return (
-    point[0] < 0 ||
-    point[0] >= bounds[0] ||
-    point[1] < 0 ||
-    point[1] >= bounds[1]
-  );
+export const isOutOfBounds = ([aX, aY]: Point, [boundsX, boundsY]: Point) => {
+  return aX < 0 || aX > boundsX || aY < 0 || aY > boundsY;
 };
 
 export const hasPosition = (snake: Snake, point: Point) => {
@@ -31,39 +26,39 @@ export const isHead = (point: Point, snake: Snake): boolean => {
 };
 
 export const append = (snake: Snake, point: Point): Snake => {
-  return [...snake, { point }];
-};
-
-export const prepend = (snake: Snake, point: Point): Snake => {
   return [{ point }, ...snake];
 };
 
-export const pop = (snake: Snake): [SnakeNode | undefined, Snake] => {
-  const poppedSnake = [...snake];
-  const last = poppedSnake.pop();
+export const prepend = (snake: Snake, point: Point): Snake => {
+  return [...snake, { point }];
+};
 
-  return [last, poppedSnake];
+export const pop = (snake: Snake): [SnakeNode | undefined, Snake] => {
+  const lastIndex = snake.length - 1;
+  const { [lastIndex]: last, ...poppedSnake } = snake;
+
+  return [last, Object.values(poppedSnake) as Snake];
 };
 
 export const getNextPoint = (
   snake: Snake,
   direction: Direction,
-  [boundsX, boundsY]: Point,
+  [rows, cols]: Point,
 ): Point => {
-  const [headX, headY] = snake[snake.length - 1].point;
+  const [headX, headY] = snake[0].point;
   let nextHead: Point;
   switch (direction) {
     case "up":
-      nextHead = [headX, headY - 1 < 0 ? boundsY - 1 : headY - 1];
+      nextHead = [headX, headY - 1 < 0 ? rows : headY - 1];
       break;
     case "down":
-      nextHead = [headX, headY + 1 >= boundsY ? 0 : headY + 1];
+      nextHead = [headX, headY + 1 > rows ? 0 : headY + 1];
       break;
     case "left":
-      nextHead = [headX - 1 < 0 ? boundsX - 1 : headX - 1, headY];
+      nextHead = [headX - 1 < 0 ? cols : headX - 1, headY];
       break;
     case "right":
-      nextHead = [headX + 1 >= boundsX ? 0 : headX + 1, headY];
+      nextHead = [headX + 1 > cols ? 0 : headX + 1, headY];
       break;
   }
 
@@ -140,13 +135,13 @@ export const getCell = <T>(grid: Grid<T>, [pointX, pointY]: Point): T => {
 };
 
 export const pickRandom = (
-  [boundsX, boundsY]: Point,
+  [rows, cols]: Point,
   snake: Snake,
 ): Point | undefined => {
   const available: Point[] = [];
 
-  for (let y = 0; y < boundsY; y++) {
-    for (let x = 0; x < boundsX; x++) {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
       const point: Point = [x, y];
 
       if (!hasPosition(snake, point)) {

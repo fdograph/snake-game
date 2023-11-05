@@ -1,15 +1,6 @@
-import React, { useEffect, useState } from "react";
-import {
-  Snake,
-  Action,
-  Direction,
-  Point,
-  pickRandom,
-  isSamePoint,
-  calculateNext,
-  grow,
-  translate,
-} from "./FunctionalSnake.ts";
+import React, { useEffect, useReducer } from "react";
+import { Action, Direction, Point, isSamePoint } from "./FunctionalSnake.ts";
+import { defaultState, snakeGameReducer } from "./SnakeGameState.ts";
 
 const ActionCommandKeys: Record<Action, Set<string>> = {
   pause: new Set([" ", "enter", "return", "p"]),
@@ -58,77 +49,51 @@ const resolveDirection = (from: Direction, key: string): Direction => {
   }
 };
 
-export const useSnakeGame = (
+export const useSnakeGameReducer = (
   gridRef: React.RefObject<HTMLElement>,
   speed: number,
   blockSize: number,
-): [Snake, Point | undefined, Point | undefined, boolean] => {
-  const [bounds, setBounds] = useState<Point | undefined>(undefined);
-  const [direction, setDirection] = useState<Direction>("right");
-  const [snake, setSnake] = useState<Snake>([{ point: [0, 0] }]);
-  const [food, setFood] = useState<Point | undefined>(undefined);
-  const [lost, setLost] = useState(false);
+) => {
+  const [snakeState, dispatch] = useReducer(snakeGameReducer, defaultState);
 
   useEffect(() => {
     let ticker: NodeJS.Timeout | undefined;
-
-    const updateFood = (s: Snake): Point | undefined => {
-      if (bounds === undefined) return undefined;
-      return pickRandom(bounds, s);
-    };
-    const moveSnake = (dir: Direction) => {
-      if (lost || bounds === undefined) return;
-
-      try {
-        const nextHead = calculateNext(snake, dir, bounds);
-
-        let newFood = food;
-        let newSnake = snake;
-        if (newFood && isSamePoint(nextHead, newFood)) {
-          newSnake = grow(snake, dir, bounds);
-          newFood = updateFood(newSnake);
-        } else {
-          newSnake = translate(snake, dir, bounds);
-        }
-
-        setSnake(newSnake);
-        setFood(newFood ?? updateFood(newSnake));
-      } catch (e) {
-        console.log(e);
-        setLost(true);
-      }
-    };
-
     const play = () => {
       ticker = setTimeout(() => {
-        moveSnake(direction);
+        if (snakeState.playerState === "gameover") {
+          console.log("Player lost, stopping ticker");
+          return;
+        }
+
+        dispatch({
+          type: "MOVE_SNAKE",
+          payload: { direction: snakeState.currentDirection },
+        });
+        play();
       }, speed);
     };
-
     const stop = () => {
       clearTimeout(ticker);
       ticker = undefined;
     };
-
     const pause = () => {
       return ticker ? stop() : play();
     };
-
     const calculateBounds = (): Point => {
-      const rows = Math.floor((gridRef.current?.clientHeight ?? 0) / blockSize);
-      const cols = Math.floor((gridRef.current?.clientWidth ?? 0) / blockSize);
-
+      const rect = gridRef.current?.getBoundingClientRect();
+      const height = rect?.height ?? 0;
+      const width = rect?.width ?? 0;
+      const rows = Math.floor(height / blockSize);
+      const cols = Math.floor(width / blockSize);
+      // debugger;
       return [rows, cols];
     };
     const setBoundsFromRef = () => {
-      requestAnimationFrame(() => {
-        const newBounds = calculateBounds();
-        if (!bounds || !isSamePoint(bounds, newBounds)) {
-          setBounds(newBounds);
-        }
-      });
+      const newBounds = calculateBounds();
+      if (!snakeState.bounds || !isSamePoint(snakeState.bounds, newBounds)) {
+        dispatch({ type: "SET_BOUNDS", payload: { bounds: newBounds } });
+      }
     };
-
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
 
@@ -141,17 +106,18 @@ export const useSnakeGame = (
         return;
       }
 
-      const dir = resolveDirection(direction, key);
+      const dir = resolveDirection(snakeState.currentDirection, key);
 
-      if (dir === direction) {
+      if (dir === snakeState.currentDirection) {
         return;
       }
 
       stop();
-      setDirection(dir);
-      moveSnake(dir);
+      dispatch({
+        type: "MOVE_SNAKE",
+        payload: { direction: dir, override: true },
+      });
     };
-
     const registerEvents = () => {
       window.addEventListener("resize", setBoundsFromRef);
       window.addEventListener("keydown", handleKeyDown);
@@ -164,15 +130,20 @@ export const useSnakeGame = (
     // init effect
     setBoundsFromRef();
     registerEvents();
-
     play();
-    console.log("init");
 
     return () => {
       deregisterEvents();
       stop();
     };
-  }, [blockSize, bounds, direction, food, gridRef, lost, snake, speed]);
+  }, [
+    blockSize,
+    gridRef,
+    snakeState.bounds,
+    snakeState.currentDirection,
+    snakeState.playerState,
+    speed,
+  ]);
 
-  return [snake, food, bounds, lost];
+  return [snakeState, dispatch] as const;
 };

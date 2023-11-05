@@ -13,6 +13,7 @@ import {
 export type GridProps = {
   xLength: number;
   yLength: number;
+  blockSize: number;
   snake?: Snake;
   food?: Point;
   boundaries?: Point;
@@ -24,6 +25,7 @@ export type GridProps = {
 export const Grid: React.FC<GridProps> = ({
   xLength,
   yLength,
+  blockSize,
   snake = [],
   food,
   lost,
@@ -40,6 +42,7 @@ export const Grid: React.FC<GridProps> = ({
     [xLength, yLength],
   );
 
+  const size = xLength === 0 || yLength === 0 ? 0 : blockSize;
   return (
     <div
       {...attributes}
@@ -47,6 +50,7 @@ export const Grid: React.FC<GridProps> = ({
       style={{
         ["--x-length" as never]: xLength,
         ["--y-length" as never]: yLength,
+        ["--block-size" as never]: `${size}px`,
       }}
     >
       {cells.map((point: Point) => (
