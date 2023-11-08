@@ -8,6 +8,7 @@ import {
   Snake,
   translate,
 } from "./FunctionalSnake.ts";
+import { SnakeGameActions, SnakeGameActionsTypes } from "./SnakeGameActions.ts";
 
 export type PlayerState = "playing" | "paused" | "gameover";
 export type SnakeGameState = {
@@ -16,35 +17,8 @@ export type SnakeGameState = {
   playerState: PlayerState;
   food: Point | undefined;
   bounds: Point | undefined;
+  score: number;
 };
-
-export type SnakeGameActionTypes =
-  | {
-      type: "SET_DIRECTION";
-      payload: { direction: Direction };
-    }
-  | {
-      type: "SET_PLAYER_STATE";
-      payload: { playerState: PlayerState };
-    }
-  | {
-      type: "SET_BOUNDS";
-      payload: { bounds: Point };
-    }
-  | {
-      type: "SET_FOOD";
-      payload: { food: Point | undefined };
-    }
-  | {
-      type: "SET_SNAKE";
-      payload: { snake: Snake };
-    }
-  | {
-      type: "MOVE_SNAKE";
-      payload: { direction: Direction; override?: boolean };
-    };
-
-export type SnakeGameActionTypeValues = SnakeGameActionTypes["type"];
 
 export const defaultState: SnakeGameState = {
   snake: [{ point: [0, 0] }],
@@ -52,76 +26,74 @@ export const defaultState: SnakeGameState = {
   playerState: "playing",
   food: undefined,
   bounds: undefined,
+  score: 0,
 };
-export const buildSnakeGameReducer = (handlers: {
-  [key in SnakeGameActionTypeValues]: (
+
+type SnakeGameActionsHandlerMap = {
+  [key in SnakeGameActionsTypes]: (
     state: SnakeGameState,
-    action: Extract<SnakeGameActionTypes, { type: key }>,
+    action: Omit<Extract<SnakeGameActions, { type: key }>, never>,
   ) => SnakeGameState;
-}) => {
-  return (
-    state: SnakeGameState = defaultState,
-    action: SnakeGameActionTypes,
-  ) => {
-    const handler = handlers[action.type];
-    return handler ? handler(state, action as never) : state;
+};
+export const buildSnakeGameReducer = (handlers: SnakeGameActionsHandlerMap) => {
+  return (state: SnakeGameState = defaultState, action: SnakeGameActions) => {
+    const type = action.type;
+    const handler = handlers[type] as
+      | ((
+          state: SnakeGameState,
+          action: Extract<SnakeGameActions, { type: typeof type }>,
+        ) => SnakeGameState)
+      | undefined;
+
+    return handler ? handler(state, action) : state;
   };
 };
 
 export const snakeGameReducer = buildSnakeGameReducer({
-  SET_DIRECTION: (state, action) => ({
-    ...state,
-    currentDirection: action.payload.direction,
-  }),
-  SET_PLAYER_STATE: (state, action) => ({
-    ...state,
-    playerState: action.payload.playerState,
-  }),
   SET_BOUNDS: (state, action) => ({
     ...state,
-    bounds: action.payload.bounds,
+    bounds: action.payload,
   }),
-  SET_FOOD: (state, action) => ({
+  SCORE_INCREMENT: (state) => ({
     ...state,
-    food: action.payload.food,
-  }),
-  SET_SNAKE: (state, action) => ({
-    ...state,
-    snake: action.payload.snake,
+    score: state.score + 1,
   }),
   MOVE_SNAKE: (state, action) => {
-    const { playerState, snake, bounds, food } = state;
-    const newState = { ...state };
-    let turnFood = food;
+    const currentDirection = action.payload.override
+      ? action.payload.direction
+      : state.currentDirection;
+    let score = state.score;
+    let food = state.food;
+    let snake = state.snake;
+    let playerState = state.playerState;
 
-    if (playerState === "gameover" || bounds === undefined) {
+    if (state.playerState === "gameover" || state.bounds === undefined) {
       return state;
     }
 
-    if (action.payload.override) {
-      newState.currentDirection = action.payload.direction;
-    }
-
     try {
-      const nextHead = calculateNext(snake, action.payload.direction, bounds);
+      const nextHead = calculateNext(
+        state.snake,
+        action.payload.direction,
+        state.bounds,
+      );
 
-      if (turnFood && isSamePoint(nextHead, turnFood)) {
-        newState.snake = grow(snake, action.payload.direction, bounds);
-        turnFood = undefined;
+      if (state.food && isSamePoint(nextHead, state.food)) {
+        snake = grow(state.snake, action.payload.direction, state.bounds);
+        food = undefined;
+        score = state.score + 1;
       } else {
-        newState.snake = translate(snake, action.payload.direction, bounds);
+        snake = translate(state.snake, action.payload.direction, state.bounds);
       }
     } catch (e) {
-      console.log(e);
-      newState.playerState = "gameover";
+      console.error(e);
+      playerState = "gameover";
     }
 
-    console.log("turnFood", turnFood);
-
-    if (turnFood === undefined) {
-      newState.food = pickRandom(bounds, newState.snake);
+    if (food === undefined) {
+      food = pickRandom(state.bounds, snake);
     }
 
-    return newState;
+    return { ...state, currentDirection, snake, food, score, playerState };
   },
 });

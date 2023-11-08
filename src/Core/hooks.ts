@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useReducer } from "react";
 import { Action, Direction, Point, isSamePoint } from "./FunctionalSnake.ts";
 import { defaultState, snakeGameReducer } from "./SnakeGameState.ts";
+import { SnakeGameActionMap } from "./SnakeGameActions.ts";
 
 const ActionCommandKeys: Record<Action, Set<string>> = {
   pause: new Set([" ", "enter", "return", "p"]),
@@ -55,6 +56,15 @@ export const useSnakeGameReducer = (
   blockSize: number,
 ) => {
   const [snakeState, dispatch] = useReducer(snakeGameReducer, defaultState);
+  const calculateBounds = useCallback((): Point => {
+    const rect = gridRef.current?.getBoundingClientRect();
+    const height = rect?.height ?? 0;
+    const width = rect?.width ?? 0;
+    const rows = Math.floor(height / blockSize);
+    const cols = Math.floor(width / blockSize);
+
+    return [rows, cols];
+  }, [gridRef, blockSize]);
 
   useEffect(() => {
     let ticker: NodeJS.Timeout | undefined;
@@ -65,10 +75,11 @@ export const useSnakeGameReducer = (
           return;
         }
 
-        dispatch({
-          type: "MOVE_SNAKE",
-          payload: { direction: snakeState.currentDirection },
-        });
+        dispatch(
+          SnakeGameActionMap.moveSnake({
+            direction: snakeState.currentDirection,
+          }),
+        );
         play();
       }, speed);
     };
@@ -79,19 +90,10 @@ export const useSnakeGameReducer = (
     const pause = () => {
       return ticker ? stop() : play();
     };
-    const calculateBounds = (): Point => {
-      const rect = gridRef.current?.getBoundingClientRect();
-      const height = rect?.height ?? 0;
-      const width = rect?.width ?? 0;
-      const rows = Math.floor(height / blockSize);
-      const cols = Math.floor(width / blockSize);
-      // debugger;
-      return [rows, cols];
-    };
     const setBoundsFromRef = () => {
       const newBounds = calculateBounds();
       if (!snakeState.bounds || !isSamePoint(snakeState.bounds, newBounds)) {
-        dispatch({ type: "SET_BOUNDS", payload: { bounds: newBounds } });
+        dispatch(SnakeGameActionMap.setBounds(newBounds));
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -112,11 +114,9 @@ export const useSnakeGameReducer = (
         return;
       }
 
-      stop();
-      dispatch({
-        type: "MOVE_SNAKE",
-        payload: { direction: dir, override: true },
-      });
+      dispatch(
+        SnakeGameActionMap.moveSnake({ direction: dir, override: true }),
+      );
     };
     const registerEvents = () => {
       window.addEventListener("resize", setBoundsFromRef);
@@ -127,7 +127,7 @@ export const useSnakeGameReducer = (
       window.removeEventListener("keydown", handleKeyDown);
     };
 
-    // init effect
+    // init
     setBoundsFromRef();
     registerEvents();
     play();
@@ -138,6 +138,7 @@ export const useSnakeGameReducer = (
     };
   }, [
     blockSize,
+    calculateBounds,
     gridRef,
     snakeState.bounds,
     snakeState.currentDirection,

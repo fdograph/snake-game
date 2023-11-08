@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1698427552919" clover="3.2.0">
+  <project timestamp="1698427552919" name="All files">
+    <metrics statements="64" coveredstatements="20" conditionals="31" coveredconditionals="2" methods="17" coveredmethods="1" elements="112" coveredelements="23" complexity="0" loc="64" ncloc="64" packages="1" files="1" classes="1"/>
+    <file name="FunctionalSnake.ts" path="/Users/fernandosilva/projects/snake-game/src/Core/FunctionalSnake.ts">
+      <metrics statements="64" coveredstatements="20" conditionals="31" coveredconditionals="2" methods="17" coveredmethods="1"/>
+      <line num="11" count="1" type="stmt"/>
+      <line num="12" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="15" count="1" type="stmt"/>
+      <line num="16" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="19" count="1" type="stmt"/>
+      <line num="20" count="0" type="stmt"/>
+      <line num="23" count="1" type="stmt"/>
+      <line num="24" count="0" type="stmt"/>
+      <line num="25" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="28" count="1" type="stmt"/>
+      <line num="29" count="0" type="stmt"/>
+      <line num="32" count="1" type="stmt"/>
+      <line num="33" count="0" type="stmt"/>
+      <line num="36" count="1" type="stmt"/>
+      <line num="37" count="0" type="stmt"/>
+      <line num="38" count="0" type="stmt"/>
+      <line num="40" count="0" type="stmt"/>
+      <line num="43" count="1" type="stmt"/>
+      <line num="48" count="1" type="stmt"/>
+      <line num="50" count="1" type="cond" truecount="1" falsecount="3"/>
+      <line num="52" count="1" type="cond" truecount="1" falsecount="1"/>
+      <line num="53" count="1" type="stmt"/>
+      <line num="55" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="56" count="0" type="stmt"/>
+      <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="59" count="0" type="stmt"/>
+      <line num="61" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="62" count="0" type="stmt"/>
+      <line num="65" count="1" type="stmt"/>
+      <line num="68" count="1" type="stmt"/>
+      <line num="73" count="0" type="stmt"/>
+      <line num="75" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="76" count="0" type="stmt"/>
+      <line num="79" count="0" type="stmt"/>
+      <line num="82" count="1" type="stmt"/>
+      <line num="87" count="0" type="stmt"/>
+      <line num="90" count="1" type="stmt"/>
+      <line num="95" count="0" type="stmt"/>
+      <line num="98" count="1" type="stmt"/>
+      <line num="104" count="0" type="stmt"/>
+      <line num="106" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="107" count="0" type="stmt"/>
+      <line num="110" count="0" type="stmt"/>
+      <line num="113" count="1" type="stmt"/>
+      <line num="116" count="0" type="cond" truecount="0" falsecount="1"/>
+      <line num="118" count="0" type="stmt"/>
+      <line num="120" count="0" type="stmt"/>
+      <line num="121" count="0" type="stmt"/>
+      <line num="123" count="0" type="stmt"/>
+      <line num="124" count="0" type="stmt"/>
+      <line num="127" count="0" type="stmt"/>
+      <line num="130" count="0" type="stmt"/>
+      <line num="133" count="1" type="stmt"/>
+      <line num="134" count="0" type="stmt"/>
+      <line num="137" count="1" type="stmt"/>
+      <line num="141" count="0" type="stmt"/>
+      <line num="143" count="0" type="stmt"/>
+      <line num="144" count="0" type="stmt"/>
+      <line num="145" count="0" type="stmt"/>
+      <line num="147" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="148" count="0" type="stmt"/>
+      <line num="153" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="154" count="0" type="stmt"/>
+      <line num="157" count="0" type="stmt"/>
+    </file>
+  </project>
+</coverage>
