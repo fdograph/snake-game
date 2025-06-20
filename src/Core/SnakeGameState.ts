@@ -8,7 +8,7 @@ import {
   Snake,
   translate,
 } from "./FunctionalSnake.ts";
-import { SnakeGameActions, SnakeGameActionsTypes } from "./SnakeGameActions.ts";
+import { SnakeGameAction, SnakeGameActionsType } from "./SnakeGameAction.ts";
 
 export type PlayerState = "playing" | "paused" | "gameover";
 export type SnakeGameState = {
@@ -30,18 +30,18 @@ export const defaultState: SnakeGameState = {
 };
 
 type SnakeGameActionsHandlerMap = {
-  [key in SnakeGameActionsTypes]: (
+  [key in SnakeGameActionsType]: (
     state: SnakeGameState,
-    action: Omit<Extract<SnakeGameActions, { type: key }>, never>,
+    action: Omit<Extract<SnakeGameAction, { type: key }>, never>,
   ) => SnakeGameState;
 };
 export const buildSnakeGameReducer = (handlers: SnakeGameActionsHandlerMap) => {
-  return (state: SnakeGameState = defaultState, action: SnakeGameActions) => {
+  return (state: SnakeGameState = defaultState, action: SnakeGameAction) => {
     const type = action.type;
     const handler = handlers[type] as
       | ((
           state: SnakeGameState,
-          action: Extract<SnakeGameActions, { type: typeof type }>,
+          action: Extract<SnakeGameAction, { type: typeof type }>,
         ) => SnakeGameState)
       | undefined;
 

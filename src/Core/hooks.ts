@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useReducer } from "react";
 import { Action, Direction, Point, isSamePoint } from "./FunctionalSnake.ts";
 import { defaultState, snakeGameReducer } from "./SnakeGameState.ts";
-import { SnakeGameActionMap } from "./SnakeGameActions.ts";
+import { SnakeGameActionCreators } from "./SnakeGameAction.ts";
 
 const ActionCommandKeys: Record<Action, Set<string>> = {
   pause: new Set([" ", "enter", "return", "p"]),
@@ -76,7 +76,7 @@ export const useSnakeGameReducer = (
         }
 
         dispatch(
-          SnakeGameActionMap.moveSnake({
+          SnakeGameActionCreators.moveSnake({
             direction: snakeState.currentDirection,
           }),
         );
@@ -93,7 +93,7 @@ export const useSnakeGameReducer = (
     const setBoundsFromRef = () => {
       const newBounds = calculateBounds();
       if (!snakeState.bounds || !isSamePoint(snakeState.bounds, newBounds)) {
-        dispatch(SnakeGameActionMap.setBounds(newBounds));
+        dispatch(SnakeGameActionCreators.setBounds(newBounds));
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -115,7 +115,7 @@ export const useSnakeGameReducer = (
       }
 
       dispatch(
-        SnakeGameActionMap.moveSnake({ direction: dir, override: true }),
+        SnakeGameActionCreators.moveSnake({ direction: dir, override: true }),
       );
     };
     const registerEvents = () => {
