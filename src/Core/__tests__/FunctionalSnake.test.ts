@@ -145,7 +145,7 @@ describe("FunctionalSnake", () => {
     });
     it("should return the next point when the snake is out of bounds", () => {
       const snake: Snake = [{ point: [0, 0] }];
-      const result = calculateNext(snake, "up", [0, 1]);
+      const result = calculateNext(snake, "up", [1, 1]);
 
       expect(result).toEqual([0, 1]);
     });
