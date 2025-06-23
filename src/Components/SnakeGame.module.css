@@ -27,19 +27,19 @@
 }
 
 .Snake {
-  background-color: hsl(0, 0%, 90%);
+  background-color: var(--color-gray-90);
 }
 
 .SnakeHead {
-  background-color: hsl(0, 0%, 80%);
+  background-color: var(--color-gray-80);
 }
 
 .SnakeLost {
-  background-color: hsl(10, 100%, 50%);
+  background-color: var(--color-danger);
 }
 
 .Food {
-  background-color: hsl(50, 100%, 50%);
+  background-color: var(--color-warning);
   border-radius: 10%;
 }
 

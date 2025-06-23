@@ -35,7 +35,7 @@ export const Grid: React.FC<GridProps> = ({
 }) => {
   const cells: Point[] = useMemo(
     () =>
-      gridLoop(xLength, yLength, (point) => point).reduce(
+      gridLoop(yLength, xLength, (point) => point).reduce(
         (acc, pointRow) => [...acc, ...pointRow],
         [],
       ),

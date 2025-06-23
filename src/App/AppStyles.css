@@ -1,3 +1,36 @@
+:root {
+  --color-gray-0: hsl(0, 0%, 0%);
+  --color-gray-10: hsl(0, 0%, 10%);
+  --color-gray-20: hsl(0, 0%, 20%);
+  --color-gray-30: hsl(0, 0%, 30%);
+  --color-gray-40: hsl(0, 0%, 40%);
+  --color-gray-50: hsl(0, 0%, 50%);
+  --color-gray-60: hsl(0, 0%, 60%);
+  --color-gray-70: hsl(0, 0%, 70%);
+  --color-gray-80: hsl(0, 0%, 80%);
+  --color-gray-90: hsl(0, 0%, 90%);
+  --color-gray-100: hsl(0, 0%, 100);
+
+  --color-danger-darker: hsl(10, 100%, 35%);
+  --color-danger-dark: hsl(10, 100%, 40%);
+  --color-danger: hsl(10, 100%, 50%);
+  --color-danger-light: hsl(10, 100%, 60%);
+  --color-danger-lighter: hsl(10, 100%, 65%);
+
+  --color-warning-darker:  hsl(50, 100%, 35%);
+  --color-warning-dark:  hsl(50, 100%, 40%);
+  --color-warning:  hsl(50, 100%, 50%);
+  --color-warning-ligh:  hsl(50, 100%, 60%);
+  --color-warning-lighter:  hsl(50, 100%, 65%);
+
+  --colog-positive-darker: hsl(75, 100%, 25%);
+  --colog-positive-dark: hsl(75, 100%, 30%);
+  --colog-positive: hsl(75, 100%, 40%);
+  --colog-positive-light: hsl(75, 100%, 50%);
+  --colog-positive-lighter: hsl(75, 100%, 55%);
+}
+
+
 /* Box sizing rules */
 *,
 *::before,

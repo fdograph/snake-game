@@ -1,5 +1,6 @@
 export type Grid<T> = T[][];
-export type Point = [number, number];
+export type Point = [number, number]; // [rowIndex, colIndex]
+export type GridDimensions = [number, number]; // [mRows, nCols]
 export type SnakeNode = {
   point: Point;
 };
@@ -12,8 +13,11 @@ export const isSamePoint = (a: Point, b: Point) => {
   return a[0] === b[0] && a[1] === b[1];
 };
 
-export const isOutOfBounds = ([aX, aY]: Point, [boundsX, boundsY]: Point) => {
-  return aX < 0 || aX > boundsX || aY < 0 || aY > boundsY;
+export const isOutOfBounds = (
+  [aX, aY]: Point,
+  [boundsX, boundsY]: GridDimensions,
+) => {
+  return aX < 0 || aX > boundsX - 1 || aY < 0 || aY > boundsY - 1;
 };
 
 export const hasPosition = (snake: Snake, point: Point) => {
@@ -25,50 +29,61 @@ export const isHead = (point: Point, snake: Snake): boolean => {
   return head !== undefined && isSamePoint(point, head.point);
 };
 
-export const append = (snake: Snake, point: Point): Snake => {
+export const prepend = (snake: Snake, point: Point): Snake => {
   return [{ point }, ...snake];
 };
 
-export const prepend = (snake: Snake, point: Point): Snake => {
+export const append = (snake: Snake, point: Point): Snake => {
   return [...snake, { point }];
 };
 
 export const pop = (snake: Snake): [SnakeNode | undefined, Snake] => {
-  const lastIndex = snake.length - 1;
-  const { [lastIndex]: last, ...poppedSnake } = snake;
+  if (snake.length === 0) {
+    return [undefined, []];
+  }
 
-  return [last, Object.values(poppedSnake) as Snake];
+  const lastIndex = snake.length - 1;
+  const last = snake[lastIndex];
+  const poppedSnake = snake.slice(0, lastIndex);
+
+  return [last, poppedSnake];
 };
 
 export const getNextPoint = (
   snake: Snake,
   direction: Direction,
-  [rows, cols]: Point,
+  [rows, cols]: GridDimensions,
 ): Point => {
   const [headX, headY] = snake[0].point;
-  let nextHead: Point;
+  let nextX: number;
+  let nextY: number;
+
   switch (direction) {
     case "up":
-      nextHead = [headX, headY - 1 < 0 ? rows : headY - 1];
+      nextX = headX;
+      nextY = headY - 1 < 0 ? rows - 1 : headY - 1;
       break;
     case "down":
-      nextHead = [headX, headY + 1 > rows ? 0 : headY + 1];
+      nextX = headX;
+      nextY = headY + 1 > rows - 1 ? 0 : headY + 1;
       break;
     case "left":
-      nextHead = [headX - 1 < 0 ? cols : headX - 1, headY];
+      nextX = headX - 1 < 0 ? cols - 1 : headX - 1;
+      nextY = headY;
       break;
     case "right":
-      nextHead = [headX + 1 > cols ? 0 : headX + 1, headY];
+      nextX = headX + 1 > cols - 1 ? 0 : headX + 1;
+      nextY = headY;
       break;
   }
 
-  return nextHead;
+  return [nextX, nextY];
 };
 
 export const calculateNext = (
   snake: Snake,
   direction: Direction,
-  bounds: Point,
+  bounds: GridDimensions,
 ): Point => {
   const nextHead = getNextPoint(snake, direction, bounds);
 
@@ -82,23 +97,23 @@ export const calculateNext = (
 export const translate = (
   snake: Snake,
   direction: Direction,
-  bounds: Point,
+  bounds: GridDimensions,
 ): Snake => {
-  return append(pop(snake)[1], calculateNext(snake, direction, bounds));
+  return prepend(pop(snake)[1], calculateNext(snake, direction, bounds));
 };
 
 export const grow = (
   snake: Snake,
   direction: Direction,
-  bounds: Point,
+  bounds: GridDimensions,
 ): Snake => {
-  return append(snake, calculateNext(snake, direction, bounds));
+  return prepend(snake, calculateNext(snake, direction, bounds));
 };
 
 export const move = (
   snake: Snake,
   direction: Direction,
-  bounds: Point,
+  bounds: GridDimensions,
   food?: Point,
 ): Snake => {
   const nextHead = calculateNext(snake, direction, bounds);
@@ -111,8 +126,8 @@ export const move = (
 };
 
 export const gridLoop = (
-  cols: number,
   rows: number,
+  cols: number,
   factory: (point: Point) => Point = (point) => point,
 ): Grid<Point> => {
   const grid: Point[][] = [];
@@ -130,12 +145,8 @@ export const gridLoop = (
   return grid;
 };
 
-export const getCell = <T>(grid: Grid<T>, [pointX, pointY]: Point): T => {
-  return grid[pointX][pointY];
-};
-
 export const pickRandom = (
-  [rows, cols]: Point,
+  [rows, cols]: GridDimensions,
   snake: Snake,
 ): Point | undefined => {
   const available: Point[] = [];
