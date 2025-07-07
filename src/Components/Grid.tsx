@@ -8,7 +8,7 @@ import {
   isSamePoint,
   Point,
   Snake,
-} from "../Core/FunctionalSnake.ts";
+} from "../Core/core.ts";
 
 export type GridProps = {
   xLength: number;

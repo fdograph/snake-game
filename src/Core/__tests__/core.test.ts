@@ -14,7 +14,7 @@ import {
   append,
   Snake,
   translate,
-} from "../FunctionalSnake.ts";
+} from "../core.ts";
 
 describe("FunctionalSnake", () => {
   describe("isSamePoint", () => {

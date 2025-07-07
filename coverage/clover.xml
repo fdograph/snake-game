@@ -2,7 +2,7 @@
 <coverage generated="1698427552919" clover="3.2.0">
   <project timestamp="1698427552919" name="All files">
     <metrics statements="64" coveredstatements="20" conditionals="31" coveredconditionals="2" methods="17" coveredmethods="1" elements="112" coveredelements="23" complexity="0" loc="64" ncloc="64" packages="1" files="1" classes="1"/>
-    <file name="FunctionalSnake.ts" path="/Users/fernandosilva/projects/snake-game/src/Core/FunctionalSnake.ts">
+    <file name="core.ts" path="/Users/fernandosilva/projects/snake-game/src/Core/core.ts">
       <metrics statements="64" coveredstatements="20" conditionals="31" coveredconditionals="2" methods="17" coveredmethods="1"/>
       <line num="11" count="1" type="stmt"/>
       <line num="12" count="0" type="cond" truecount="0" falsecount="2"/>
