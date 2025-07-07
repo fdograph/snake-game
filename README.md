@@ -6,3 +6,7 @@ How to run:
 npm install
 npm run dev
 ```
+
+## Preview
+
+[https://fdograph.github.io/snake-game/](https://fdograph.github.io/snake-game/)
