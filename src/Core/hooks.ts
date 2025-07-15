@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useReducer } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
 import { Action, Direction, Point, isSamePoint } from "./core.ts";
 import { defaultState } from "./SnakeGameState.ts";
 import { bindActions, buildReducer } from "./SnakeGameActions.ts";
@@ -60,6 +66,72 @@ export const useSnakeGameReducer = (
     defaultState,
   );
   const boundActions = useMemo(() => bindActions(dispatch), [dispatch]);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isRunningRef = useRef<boolean>(false);
+  const controls = useMemo(() => {
+    const play = () => {
+      if (!isRunningRef.current) {
+        isRunningRef.current = true;
+        intervalRef.current = setInterval(() => {
+          if (snakeState.playerState === "gameover") {
+            console.log("Player lost, stopping ticker");
+            return;
+          }
+
+          boundActions.moveSnake({
+            direction: snakeState.currentDirection,
+          });
+        }, speed);
+      }
+    };
+    const stop = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      isRunningRef.current = false;
+    };
+    const pause = () => {
+      if (isRunningRef.current) {
+        return stop();
+      }
+
+      return play();
+    };
+
+    return {
+      play,
+      stop,
+      pause,
+    };
+  }, [
+    boundActions,
+    snakeState.currentDirection,
+    snakeState.playerState,
+    speed,
+  ]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
+      if (CommandKeys.pause.has(key)) {
+        controls.pause();
+        return;
+      }
+      if (!isRunningRef.current) {
+        return;
+      }
+
+      const dir = resolveDirection(snakeState.currentDirection, key);
+
+      if (dir === snakeState.currentDirection) {
+        return;
+      }
+
+      boundActions.moveSnake({ direction: dir, override: true });
+    },
+    [boundActions, controls, snakeState.currentDirection],
+  );
   const calculateBounds = useCallback((): Point => {
     const rect = gridRef.current?.getBoundingClientRect();
     const height = rect?.height ?? 0;
@@ -71,82 +143,40 @@ export const useSnakeGameReducer = (
   }, [gridRef, blockSize]);
 
   useEffect(() => {
-    let ticker: NodeJS.Timeout | undefined;
-    const play = () => {
-      ticker = setTimeout(() => {
-        if (snakeState.playerState === "gameover") {
-          console.log("Player lost, stopping ticker");
-          return;
-        }
+    controls.stop();
+    controls.play();
 
-        boundActions.moveSnake({
-          direction: snakeState.currentDirection,
-        });
-        play();
-      }, speed);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      controls.stop();
+      window.removeEventListener("keydown", handleKeyDown);
     };
-    const stop = () => {
-      clearTimeout(ticker);
-      ticker = undefined;
-    };
-    const pause = () => {
-      return ticker ? stop() : play();
-    };
+  }, [controls, handleKeyDown]);
+
+  useEffect(() => {
     const setBoundsFromRef = () => {
       const newBounds = calculateBounds();
       if (!snakeState.bounds || !isSamePoint(snakeState.bounds, newBounds)) {
-        console.log("bounds", { newBounds });
         boundActions.setBounds({ point: newBounds });
       }
-    };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-
-      if (CommandKeys.pause.has(key)) {
-        pause();
-      }
-
-      if (!ticker) {
-        // is paused or stopped
-        return;
-      }
-
-      const dir = resolveDirection(snakeState.currentDirection, key);
-
-      if (dir === snakeState.currentDirection) {
-        return;
-      }
-
-      boundActions.moveSnake({ direction: dir, override: true });
-    };
-    const registerEvents = () => {
-      window.addEventListener("resize", setBoundsFromRef);
-      window.addEventListener("keydown", handleKeyDown);
-    };
-    const deregisterEvents = () => {
-      window.removeEventListener("resize", setBoundsFromRef);
-      window.removeEventListener("keydown", handleKeyDown);
     };
 
     // init
     setBoundsFromRef();
-    registerEvents();
-    play();
+    window.addEventListener("resize", setBoundsFromRef);
 
     return () => {
-      deregisterEvents();
-      stop();
+      window.removeEventListener("resize", setBoundsFromRef);
     };
-  }, [
-    blockSize,
-    boundActions,
-    calculateBounds,
-    gridRef,
-    snakeState.bounds,
-    snakeState.currentDirection,
-    snakeState.playerState,
-    speed,
-  ]);
+  }, [boundActions, calculateBounds, snakeState.bounds]);
 
-  return [snakeState, dispatch] as const;
+  return useMemo(
+    () => ({
+      state: snakeState,
+      actions: boundActions,
+      controls,
+    }),
+    [boundActions, controls, snakeState],
+  );
 };

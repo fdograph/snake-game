@@ -57,7 +57,6 @@ export const bindActions = (
   const keys = Object.keys(Actions) as ActionTypeKey[];
   for (const key of keys) {
     bound[key] = (payload: ActionTypePayload<typeof key>) => {
-      console.log("bound call", { payload });
       return dispatch(Actions[key](payload as never));
     };
   }
@@ -70,7 +69,6 @@ export const buildReducer = (defaultState: SnakeGameState) => {
     const { type, payload } = action;
     const ActionHandlers: ActionHandlersType = {
       setBounds: (state, payload) => {
-        console.log("setBounds called", { payload });
         return {
           ...state,
           bounds: payload.point,

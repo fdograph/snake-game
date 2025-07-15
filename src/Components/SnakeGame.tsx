@@ -7,9 +7,10 @@ import { Keyboard } from "./Keyboard.tsx";
 
 const TICK_RATE = 1000 / 10;
 const BLOCK_SIZE = 30;
+
 export const SnakeGame: React.FC = () => {
   const gridRef = React.useRef<HTMLDivElement>(null);
-  const [state] = useSnakeGameReducer(gridRef, TICK_RATE, BLOCK_SIZE);
+  const { state } = useSnakeGameReducer(gridRef, TICK_RATE, BLOCK_SIZE);
 
   return (
     <div className={Styles.GridWrapper}>
