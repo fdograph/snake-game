@@ -145,6 +145,13 @@ export const gridLoop = (
   return grid;
 };
 
+export const flatGrid = (rowCount: number, colCount: number) => {
+  return gridLoop(rowCount, colCount, (point) => point).reduce(
+    (acc, pointRow) => [...acc, ...pointRow],
+    [],
+  );
+};
+
 export const pickRandom = (
   [rows, cols]: GridDimensions,
   snake: Snake,

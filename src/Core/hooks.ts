@@ -9,6 +9,9 @@ import { Action, Direction, Point, isSamePoint } from "./core.ts";
 import { defaultState } from "./SnakeGameState.ts";
 import { bindActions, buildReducer } from "./SnakeGameActions.ts";
 
+const TICK_RATE = 1000 / 10;
+const BLOCK_SIZE = 30;
+
 const ActionCommandKeys: Record<Action, Set<string>> = {
   pause: new Set([" ", "enter", "return", "p"]),
 };
@@ -57,10 +60,10 @@ const resolveDirection = (from: Direction, key: string): Direction => {
 };
 
 export const useSnakeGameReducer = (
-  gridRef: React.RefObject<HTMLElement>,
-  speed: number,
-  blockSize: number,
+  speed: number = TICK_RATE,
+  blockSize: number = BLOCK_SIZE,
 ) => {
+  const ref = React.useRef<HTMLDivElement>(null);
   const [snakeState, dispatch] = useReducer(
     buildReducer(defaultState),
     defaultState,
@@ -73,7 +76,7 @@ export const useSnakeGameReducer = (
       if (!isRunningRef.current) {
         isRunningRef.current = true;
         intervalRef.current = setInterval(() => {
-          if (snakeState.playerState === "gameover") {
+          if (snakeState.playerStatus === "gameover") {
             console.log("Player lost, stopping ticker");
             return;
           }
@@ -98,16 +101,21 @@ export const useSnakeGameReducer = (
 
       return play();
     };
+    const reset = () => {
+      boundActions.restart(undefined);
+      stop();
+    };
 
     return {
       play,
       stop,
       pause,
+      reset,
     };
   }, [
     boundActions,
     snakeState.currentDirection,
-    snakeState.playerState,
+    snakeState.playerStatus,
     speed,
   ]);
   const handleKeyDown = useCallback(
@@ -133,14 +141,14 @@ export const useSnakeGameReducer = (
     [boundActions, controls, snakeState.currentDirection],
   );
   const calculateBounds = useCallback((): Point => {
-    const rect = gridRef.current?.getBoundingClientRect();
+    const rect = ref.current?.getBoundingClientRect();
     const height = rect?.height ?? 0;
     const width = rect?.width ?? 0;
     const rows = Math.floor(height / blockSize);
     const cols = Math.floor(width / blockSize);
 
     return [rows, cols];
-  }, [gridRef, blockSize]);
+  }, [ref, blockSize]);
 
   useEffect(() => {
     controls.stop();
@@ -173,10 +181,12 @@ export const useSnakeGameReducer = (
 
   return useMemo(
     () => ({
+      blockSize,
       state: snakeState,
       actions: boundActions,
       controls,
+      ref,
     }),
-    [boundActions, controls, snakeState],
+    [blockSize, boundActions, controls, snakeState],
   );
 };

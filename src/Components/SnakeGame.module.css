@@ -43,8 +43,24 @@
   border-radius: 10%;
 }
 
-.Keyboard {
+.ControlBoard {
   flex-grow: 0;
   flex-shrink: 1;
   padding: 1rem;
+}
+
+.ControlBoardSection {
+
+}
+
+.ControlBoardButton {
+
+}
+
+.ControlBoardButtonPlay {}
+.ControlBoardButtonStop {}
+.ControlBoardButtonPause {}
+
+.ControlBoardPlayerStatus {
+
 }

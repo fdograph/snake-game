@@ -25,6 +25,10 @@ const Actions = {
     type: "scoreIncrement" as ActionTypeKey,
     payload: payload,
   }),
+  restart: (payload: undefined = undefined) => ({
+    type: "restart" as ActionTypeKey,
+    payload: payload,
+  }),
 } as const;
 type ActionTypeKey = keyof typeof Actions;
 type ActionTypePayload<T extends ActionTypeKey> = Parameters<
@@ -85,9 +89,9 @@ export const buildReducer = (defaultState: SnakeGameState) => {
         let score = state.score;
         let food = state.food;
         let snake = state.snake;
-        let playerState = state.playerState;
+        let playerState = state.playerStatus;
 
-        if (state.playerState === "gameover" || state.bounds === undefined) {
+        if (state.playerStatus === "gameover" || state.bounds === undefined) {
           return state;
         }
 
@@ -114,7 +118,20 @@ export const buildReducer = (defaultState: SnakeGameState) => {
           food = pickRandom(state.bounds, snake);
         }
 
-        return { ...state, currentDirection, snake, food, score, playerState };
+        return {
+          ...state,
+          currentDirection,
+          snake,
+          food,
+          score,
+          playerStatus: playerState,
+        };
+      },
+      restart: (state) => {
+        return {
+          ...defaultState,
+          score: state.score,
+        };
       },
     };
     const handler = ActionHandlers[type];

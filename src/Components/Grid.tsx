@@ -2,43 +2,26 @@ import React, { useMemo } from "react";
 
 import Styles from "./SnakeGame.module.css";
 import {
-  gridLoop,
+  flatGrid,
   hasPosition,
   isHead,
   isSamePoint,
   Point,
-  Snake,
 } from "../Core/core.ts";
+import { useSnakeGameContext } from "../Core/context.ts";
 
 export type GridProps = {
-  xLength: number;
-  yLength: number;
-  blockSize: number;
-  snake?: Snake;
-  food?: Point;
-  boundaries?: Point;
-  lost: boolean;
-  gridRef?: React.Ref<HTMLDivElement>;
   attributes?: React.HTMLAttributes<HTMLDivElement>;
 };
 
-export const Grid: React.FC<GridProps> = ({
-  xLength,
-  yLength,
-  blockSize,
-  snake = [],
-  food,
-  lost,
-  boundaries = [0, 0],
-  gridRef,
-  attributes,
-}) => {
+export const Grid: React.FC<GridProps> = ({ attributes }) => {
+  const { state, ref, blockSize } = useSnakeGameContext();
+  const xLength = state.bounds ? state.bounds[1] : 0;
+  const yLength = state.bounds ? state.bounds[0] : 0;
+  const lost = state.playerStatus === "gameover";
+
   const cells: Point[] = useMemo(
-    () =>
-      gridLoop(yLength, xLength, (point) => point).reduce(
-        (acc, pointRow) => [...acc, ...pointRow],
-        [],
-      ),
+    () => flatGrid(yLength, xLength),
     [xLength, yLength],
   );
 
@@ -46,7 +29,7 @@ export const Grid: React.FC<GridProps> = ({
   return (
     <div
       {...attributes}
-      ref={gridRef}
+      ref={ref}
       style={{
         ["--x-length" as never]: xLength,
         ["--y-length" as never]: yLength,
@@ -57,12 +40,12 @@ export const Grid: React.FC<GridProps> = ({
         <div
           className={[
             Styles.Cell,
-            isHead(point, snake) ? Styles.SnakeHead : "",
-            hasPosition(snake, point) ? Styles.Snake : "",
-            food && isSamePoint(point, food) ? Styles.Food : "",
-            lost && hasPosition(snake, point) ? Styles.SnakeLost : "",
+            isHead(point, state.snake) ? Styles.SnakeHead : "",
+            hasPosition(state.snake, point) ? Styles.Snake : "",
+            state.food && isSamePoint(point, state.food) ? Styles.Food : "",
+            lost && hasPosition(state.snake, point) ? Styles.SnakeLost : "",
           ].join(" ")}
-          key={`${boundaries[0]}-${boundaries[1]}-${point[0]}-${point[1]}`}
+          key={`${state.bounds?.[0]}-${state.bounds?.[1]}-${point[0]}-${point[1]}`}
         />
       ))}
     </div>

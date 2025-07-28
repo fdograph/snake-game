@@ -1,11 +1,11 @@
 import { Direction, Point, Snake } from "./core.ts";
 
-export type PlayerState = "playing" | "paused" | "gameover";
+export type PlayerStatus = "playing" | "paused" | "gameover";
 
 export type SnakeGameState = {
   snake: Snake;
   currentDirection: Direction;
-  playerState: PlayerState;
+  playerStatus: PlayerStatus;
   food: Point | undefined;
   bounds: Point | undefined;
   score: number;
@@ -14,7 +14,7 @@ export type SnakeGameState = {
 export const defaultState: SnakeGameState = {
   snake: [{ point: [0, 0] }],
   currentDirection: "right",
-  playerState: "playing",
+  playerStatus: "playing",
   food: undefined,
   bounds: undefined,
   score: 0,
